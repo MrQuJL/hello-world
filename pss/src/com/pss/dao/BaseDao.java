@@ -20,10 +20,10 @@ public class BaseDao {
      */
     public Connection getConnection() {
         Connection conn = null;
-        String jdbcURL = "jdbc:mysql://localhost:3306/pss?useUnicode=true&characterEncoding=UTF-8";
+        String jdbcURL = "jdbc:mysql://localhost:3306/pss_customer?useUnicode=true&characterEncoding=UTF-8";
         String jdbcDriver = "com.mysql.jdbc.Driver";
         String user = "root";
-        String password = "123";
+        String password = "";
         try {
             DbUtils.loadDriver(jdbcDriver); // 加载mysql的数据库驱动
             conn = DriverManager.getConnection(jdbcURL, user, password);
