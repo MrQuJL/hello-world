@@ -6,17 +6,30 @@
 
 package com.pss.view;
 
+
+import com.pss.po.Supplier;
+import static com.pss.po.support.Title.titles;
+import com.pss.service.impl.SuppplierServiceImpl;
+import java.util.List;
+import java.util.Vector;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  * 供应商信息管理页面
- * @author 张琦
+ * @author 张琦 - 界面
+ * @author 李振 - 功能
  */
 public class SupplierFrame extends javax.swing.JInternalFrame {
-
+   SuppplierServiceImpl supplierDao=new SuppplierServiceImpl();
     /**
      * Creates new form SupplierFrame
      */
+ 
     public SupplierFrame() {
         initComponents();
+         this.cbxTitle.setModel(new javax.swing.DefaultComboBoxModel(titles));
+        
     }
 
     /**
@@ -28,10 +41,10 @@ public class SupplierFrame extends javax.swing.JInternalFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jTextField1 = new javax.swing.JTextField();
+        txtQuery = new javax.swing.JTextField();
         btnQuery = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tblSupplier = new javax.swing.JTable();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         txtSupplierID = new javax.swing.JTextField();
@@ -65,8 +78,13 @@ public class SupplierFrame extends javax.swing.JInternalFrame {
         setTitle("供应商资料");
 
         btnQuery.setText("查询");
+        btnQuery.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnQueryActionPerformed(evt);
+            }
+        });
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tblSupplier.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null, null, null, null, null},
                 {null, null, null, null, null, null, null, null, null, null},
@@ -76,8 +94,21 @@ public class SupplierFrame extends javax.swing.JInternalFrame {
             new String [] {
                 "供应商编号", "供应商简称", "供应商全称 ", "负责人", "称谓 ", "电话", "移动电话 ", "传真", "供应商地址", "工厂地址 "
             }
-        ));
-        jScrollPane1.setViewportView(jTable1);
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, true, false, false, false, true, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tblSupplier.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblSupplierMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(tblSupplier);
 
         jLabel1.setForeground(new java.awt.Color(255, 0, 0));
         jLabel1.setText("供应商编号：");
@@ -92,6 +123,16 @@ public class SupplierFrame extends javax.swing.JInternalFrame {
         jLabel5.setText("称谓：");
 
         cbxTitle.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cbxTitle.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cbxTitleMouseClicked(evt);
+            }
+        });
+        cbxTitle.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbxTitleActionPerformed(evt);
+            }
+        });
 
         jLabel6.setText("电话：");
 
@@ -104,16 +145,46 @@ public class SupplierFrame extends javax.swing.JInternalFrame {
         jLabel10.setText("工厂地址：");
 
         btnExit.setText("退出");
+        btnExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExitActionPerformed(evt);
+            }
+        });
 
         btnDelete.setText("删除");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
 
         btnCancle.setText("取消");
+        btnCancle.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancleActionPerformed(evt);
+            }
+        });
 
         btnSave.setText("保存");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
 
         btnUpdate.setText("更新");
+        btnUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUpdateActionPerformed(evt);
+            }
+        });
 
         btnAdd.setText("新增");
+        btnAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddActionPerformed(evt);
+            }
+        });
 
         jLabel11.setForeground(new java.awt.Color(255, 0, 0));
         jLabel11.setText("注意：红色字体项目为必填！");
@@ -216,7 +287,6 @@ public class SupplierFrame extends javax.swing.JInternalFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel10)
                     .addComponent(txtFactoryAddress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -243,7 +313,7 @@ public class SupplierFrame extends javax.swing.JInternalFrame {
                         .addComponent(jScrollPane1))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(247, 247, 247)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtQuery, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(48, 48, 48)
                         .addComponent(btnQuery)
                         .addGap(0, 0, Short.MAX_VALUE))
@@ -256,7 +326,7 @@ public class SupplierFrame extends javax.swing.JInternalFrame {
                 .addGap(12, 12, 12)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnQuery)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtQuery, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -267,7 +337,190 @@ public class SupplierFrame extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQueryActionPerformed
+        // TODO add your handling code here:
+      
+         String key=this.txtQuery.getText();
+        List<Supplier> list=supplierDao.querySupplier(key);
+        refresh(list);
+    }//GEN-LAST:event_btnQueryActionPerformed
 
+    private void cbxTitleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxTitleActionPerformed
+        // TODO add your handling code here:
+       
+            
+       
+        
+    }//GEN-LAST:event_cbxTitleActionPerformed
+
+    private void tblSupplierMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblSupplierMouseClicked
+        // TODO add your handling code here:
+        
+        int selectedRow=this.tblSupplier.getSelectedRow();
+        String sr=String.valueOf(selectedRow);
+        if(sr==null){
+        
+        }else{
+            this.txtSupplierID.setText(this.tblSupplier.getValueAt(selectedRow, 0).toString());
+            this.txtSupplierSimpleName.setText(this.tblSupplier.getValueAt(selectedRow,1).toString());
+            this.txtSupplierName.setText(this.tblSupplier.getValueAt(selectedRow, 2).toString());
+            this.txtOwner.setText(this.tblSupplier.getValueAt(selectedRow, 3).toString());
+            Object obj=this.tblSupplier.getModel().getValueAt(selectedRow, 4);
+            this.cbxTitle.setSelectedItem(obj);
+            this.txtTelephone.setText(this.tblSupplier.getValueAt(selectedRow, 5).toString());
+            this.txtMobilePhone.setText(this.tblSupplier.getValueAt(selectedRow, 6).toString());
+            this.txtFax.setText(this.tblSupplier.getValueAt(selectedRow, 7).toString());
+            this.txtCompanyAddress.setText(this.tblSupplier.getValueAt(selectedRow, 8).toString());
+            this.txtFactoryAddress.setText(this.tblSupplier.getValueAt(selectedRow, 9).toString());
+            btnSave.setEnabled(false);
+            btnCancle.setEnabled(false);
+            btnUpdate.setEnabled(true);
+        }
+    }//GEN-LAST:event_tblSupplierMouseClicked
+
+    private void cbxTitleMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cbxTitleMouseClicked
+        // TODO add your handling code here:
+        
+    }//GEN-LAST:event_cbxTitleMouseClicked
+
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        // TODO add your handling code here:
+        Supplier supplier=new Supplier();
+        supplier.setId(this.txtSupplierID.getText());
+        supplier.setSimplieName(this.txtSupplierSimpleName.getText());
+        supplier.setFullName(this.txtSupplierName.getText());
+        supplier.setOwner( this.txtOwner.getText());
+        supplier.setTitle(this.cbxTitle.getSelectedItem().toString());
+        supplier.setPhone(this.txtTelephone.getText());
+        supplier.setMobile(this.txtMobilePhone.getText());
+        supplier.setFax( this.txtFax.getText());
+        supplier.setSupplierAddress(this.txtCompanyAddress.getText());
+        supplier.setFactoryAddress(this.txtFactoryAddress.getText());
+        if(this.txtSupplierID.getText()==null||this.txtSupplierSimpleName.getText()==null||"".equals(this.txtSupplierID.getText().trim())||"".equals(this.txtSupplierSimpleName.getText().trim()))
+        {
+           JOptionPane.showMessageDialog(this, "部门编号和部门简称为必填项！请认真检查");
+        }else
+        {
+             
+              supplierDao.updateSuplier(supplier);
+          JOptionPane.showMessageDialog(this, "更新成功！");
+         
+        List<Supplier> list=supplierDao.querySupplier("");
+        refresh(list);
+        }
+        
+    }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        this.txtSupplierID.setText("");
+        this.txtSupplierSimpleName.setText("");
+        this.txtSupplierName.setText("");
+        this.txtOwner.setText("");
+        Object obj="";
+        this.cbxTitle.setSelectedItem(obj);
+        this.txtTelephone.setText("");
+        this.txtMobilePhone.setText("");
+        this.txtFax.setText("");
+        this.txtCompanyAddress.setText("");
+        this.txtFactoryAddress.setText("");
+         btnSave.setEnabled(true);
+        btnCancle.setEnabled(true);
+        btnUpdate.setEnabled(false);
+        
+        
+    }//GEN-LAST:event_btnAddActionPerformed
+
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        // TODO add your handling code here:
+        Supplier supplier=new Supplier();
+        supplier.setId(this.txtSupplierID.getText());
+        supplier.setSimplieName( this.txtSupplierSimpleName.getText());
+        supplier.setFullName(this.txtSupplierName.getText());
+        supplier.setOwner( this.txtOwner.getText());
+        supplier.setTitle(this.cbxTitle.getSelectedItem().toString());
+        supplier.setPhone(this.txtTelephone.getText());
+        supplier.setMobile(this.txtMobilePhone.getText());
+        supplier.setFax( this.txtFax.getText());
+        supplier.setSupplierAddress(this.txtCompanyAddress.getText());
+        supplier.setFactoryAddress(this.txtFactoryAddress.getText());
+        if(this.txtSupplierID.getText()==null||this.txtSupplierSimpleName.getText()==null||"".equals(this.txtSupplierID.getText().trim())||"".equals(this.txtSupplierSimpleName.getText().trim()))
+        {
+              JOptionPane.showMessageDialog(this, "部门编号和部门简称为必填项！请认真检查");
+        }else
+        {
+          
+              supplierDao.addSupplier(supplier);
+          JOptionPane.showMessageDialog(this, "添加成功！");
+          btnSave.setEnabled(false);
+          btnUpdate.setEnabled(true);
+          List<Supplier> list=supplierDao.querySupplier("");
+          refresh(list);
+        }
+        
+        
+    }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void btnCancleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancleActionPerformed
+       
+         this.txtSupplierID.setText("");
+        this.txtSupplierSimpleName.setText("");
+        this.txtSupplierName.setText("");
+        this.txtOwner.setText("");
+        Object obj="";
+        this.cbxTitle.setSelectedItem(obj);
+        this.txtTelephone.setText("");
+        this.txtMobilePhone.setText("");
+        this.txtFax.setText("");
+        this.txtCompanyAddress.setText("");
+        this.txtFactoryAddress.setText("");
+        btnSave.setEnabled(false);
+        btnCancle.setEnabled(false);
+        btnUpdate.setEnabled(true);
+        
+    }//GEN-LAST:event_btnCancleActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+         int selectedRow=this.tblSupplier.getSelectedRow();
+         String id=this.tblSupplier.getValueAt(selectedRow, 0).toString();
+         boolean flag= supplierDao.delSupplier(id);
+         if(flag)
+         {
+             JOptionPane.showMessageDialog(this, "删除成功！");
+             List<Supplier> list=supplierDao.querySupplier("");
+             refresh(list);
+         }else
+         {
+             JOptionPane.showMessageDialog(this, "删除失败！");
+         }
+        
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void btnExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExitActionPerformed
+        this.setVisible(false);
+    }//GEN-LAST:event_btnExitActionPerformed
+  private void refresh(List<Supplier> list) {
+        //1获得表格模型
+        DefaultTableModel dtm = (DefaultTableModel) this.tblSupplier.getModel();
+        //2清空表格数据
+        while (dtm.getRowCount() > 0) {
+            dtm.removeRow(0);
+        }
+        //3显示新数据
+        for (Supplier s : list) {
+            Vector v = new Vector();
+            v.add(s.getId());
+            v.add(s.getSimplieName());
+            v.add(s.getFullName());
+            v.add(s.getOwner());
+            v.add(s.getTitle());
+            v.add(s.getPhone());
+            v.add(s.getMobile());
+            v.add(s.getFax());
+            v.add(s.getSupplierAddress());
+            v.add(s.getFactoryAddress());
+            dtm.addRow(v);
+        }
+  }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAdd;
     private javax.swing.JButton btnCancle;
@@ -290,13 +543,13 @@ public class SupplierFrame extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JTable tblSupplier;
     private javax.swing.JTextField txtCompanyAddress;
     private javax.swing.JTextField txtFactoryAddress;
     private javax.swing.JTextField txtFax;
     private javax.swing.JTextField txtMobilePhone;
     private javax.swing.JTextField txtOwner;
+    private javax.swing.JTextField txtQuery;
     private javax.swing.JTextField txtSupplierID;
     private javax.swing.JTextField txtSupplierName;
     private javax.swing.JTextField txtSupplierSimpleName;

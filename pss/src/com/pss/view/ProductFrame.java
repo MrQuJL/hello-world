@@ -6,17 +6,32 @@
 
 package com.pss.view;
 
+import com.pss.dto.ProductMore;
+import com.pss.po.Product;
+import com.pss.po.Supplier;
+import com.pss.service.impl.ProductServiceImpl;
+import com.pss.service.impl.SuppplierServiceImpl;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  * 商品管理界面
- * @author 张思雨
+ * @author 张思雨 - 界面
+ * @author 李振 - 功能
  */
 public class ProductFrame extends javax.swing.JInternalFrame {
-
+     ProductServiceImpl productDao=new ProductServiceImpl();
+     SuppplierServiceImpl supplierDao=new SuppplierServiceImpl();
+     
     /**
      * Creates new form ProductFrame
      */
     public ProductFrame() {
         initComponents();
+        addToCombox();
     }
 
     /**
@@ -30,9 +45,9 @@ public class ProductFrame extends javax.swing.JInternalFrame {
 
         jMenu2 = new javax.swing.JMenu();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tblProduct = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        txtQuery = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
@@ -44,12 +59,12 @@ public class ProductFrame extends javax.swing.JInternalFrame {
         jLabel5 = new javax.swing.JLabel();
         cbxSupplier = new javax.swing.JComboBox();
         jLabel6 = new javax.swing.JLabel();
-        btnSalePrice = new javax.swing.JTextField();
+        txtSalePrice = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
         txtBuyPrice = new javax.swing.JTextField();
         btnExit = new javax.swing.JButton();
         btnDel = new javax.swing.JButton();
-        btnCancel = new javax.swing.JButton();
+        btnCancle = new javax.swing.JButton();
         btnSave = new javax.swing.JButton();
         btnUpdate = new javax.swing.JButton();
         btnAdd = new javax.swing.JButton();
@@ -60,7 +75,7 @@ public class ProductFrame extends javax.swing.JInternalFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("商品管理");
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tblProduct.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null, null},
                 {null, null, null, null, null, null, null},
@@ -71,11 +86,21 @@ public class ProductFrame extends javax.swing.JInternalFrame {
                 "编号", "产品名称", "安全存量", "建议购买价", "建议销售价", "供应商编号", "供应商名称"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        tblProduct.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblProductMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(tblProduct);
 
         jLabel1.setText("商品名称：");
 
         jButton1.setText("查询");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jLabel2.setText("手工编号：");
 
@@ -86,22 +111,57 @@ public class ProductFrame extends javax.swing.JInternalFrame {
         jLabel5.setText("建议购买价：");
 
         cbxSupplier.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cbxSupplier.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbxSupplierActionPerformed(evt);
+            }
+        });
 
         jLabel6.setText("建议销售价：");
 
         jLabel7.setText("供应商：");
 
         btnExit.setText("退出");
+        btnExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExitActionPerformed(evt);
+            }
+        });
 
         btnDel.setText("删除");
+        btnDel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDelActionPerformed(evt);
+            }
+        });
 
-        btnCancel.setText("取消");
+        btnCancle.setText("取消");
+        btnCancle.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancleActionPerformed(evt);
+            }
+        });
 
         btnSave.setText("保存");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
 
         btnUpdate.setText("更新");
+        btnUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUpdateActionPerformed(evt);
+            }
+        });
 
         btnAdd.setText("新增");
+        btnAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -126,7 +186,7 @@ public class ProductFrame extends javax.swing.JInternalFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(txtName)
-                    .addComponent(btnSalePrice, javax.swing.GroupLayout.DEFAULT_SIZE, 97, Short.MAX_VALUE))
+                    .addComponent(txtSalePrice, javax.swing.GroupLayout.DEFAULT_SIZE, 97, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -147,7 +207,7 @@ public class ProductFrame extends javax.swing.JInternalFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnSave)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnCancel)
+                .addComponent(btnCancle)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnDel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -169,7 +229,7 @@ public class ProductFrame extends javax.swing.JInternalFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
                     .addComponent(jLabel6)
-                    .addComponent(btnSalePrice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtSalePrice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel7)
                     .addComponent(txtBuyPrice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cbxSupplier, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -177,7 +237,7 @@ public class ProductFrame extends javax.swing.JInternalFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnExit)
                     .addComponent(btnDel)
-                    .addComponent(btnCancel)
+                    .addComponent(btnCancle)
                     .addComponent(btnSave)
                     .addComponent(btnUpdate)
                     .addComponent(btnAdd))
@@ -193,7 +253,7 @@ public class ProductFrame extends javax.swing.JInternalFrame {
                 .addGap(187, 187, 187)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtQuery, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jButton1)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -205,7 +265,7 @@ public class ProductFrame extends javax.swing.JInternalFrame {
                 .addGap(11, 11, 11)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtQuery, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton1))
                 .addGap(26, 26, 26)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -217,6 +277,187 @@ public class ProductFrame extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void cbxSupplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxSupplierActionPerformed
+        // TODO add your handling code here:
+        
+    }//GEN-LAST:event_cbxSupplierActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        
+        String key=this.txtQuery.getText();
+        List<ProductMore> list=productDao.queryProduct(key);
+        refresh(list);
+        addToCombox();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void btnExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExitActionPerformed
+        // TODO add your handling code here:
+        this.setVisible(false);
+    }//GEN-LAST:event_btnExitActionPerformed
+
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        // TODO add your handling code here:
+         this.txtId.setText("");
+        this.txtName.setText("");
+        this.txtSafeStorage.setText("");
+        this.txtBuyPrice.setText("");
+        this.txtSalePrice.setText("");
+         Object obj="";
+        this.cbxSupplier.setSelectedItem(obj); 
+        btnSave.setEnabled(true);
+        btnCancle.setEnabled(true);
+        btnUpdate.setEnabled(false);
+    }//GEN-LAST:event_btnAddActionPerformed
+
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        // TODO add your handling code here:
+        Product product=new Product();
+        product.setId(this.txtId.getText());
+        product.setName(this.txtName.getText());
+        product.setSafeStock(Integer.valueOf(this.txtSafeStorage.getText()) );
+        product.setSuggestPurchasePrice(Double.valueOf(this.txtBuyPrice.getText()));
+        product.setSuggestSellPrice(Double.valueOf(this.txtSalePrice.getText()));
+        int index=this.cbxSupplier.getSelectedIndex();
+        Supplier stu=(Supplier)this.cbxSupplier.getModel().getElementAt(index);
+        String id=stu.getId();
+        product.setSupplierId(id);
+//        Supplier  sup = (Supplier)this.cbxSupplier.getSelectedItem();
+//        String supplierId = sup.getId();
+//        product.setSupplier_Id(supplierId);
+     
+       if(this.txtId.getText()==null||this.txtName.getText()==null||"".equals(this.txtId.getText().trim())||"".equals(this.txtName.getText().trim()))
+      {
+         JOptionPane.showMessageDialog(this, "手工编号和产品名称为必填项！请认真检查");
+        }else
+        {
+          
+             productDao.updateProduct(product);
+             JOptionPane.showMessageDialog(this, "更新成功！");
+        
+        List<ProductMore> list=productDao.queryProduct("");
+          refresh(list);
+       }
+       
+    }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void tblProductMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblProductMouseClicked
+        // TODO add your handling code here:
+        int selectedRow=this.tblProduct.getSelectedRow();
+        String sr=String.valueOf(selectedRow);
+        if(sr==null){
+        
+        }else{
+        this.txtId.setText(this.tblProduct.getValueAt(selectedRow, 0).toString());
+        this.txtName.setText(this.tblProduct.getValueAt(selectedRow,1).toString());
+        this.txtSafeStorage.setText(this.tblProduct.getValueAt(selectedRow, 2).toString());
+        this.txtBuyPrice.setText(this.tblProduct.getValueAt(selectedRow, 3).toString());
+        this.txtSalePrice.setText(this.tblProduct.getValueAt(selectedRow,4).toString());
+        
+        String sName= (String) this.tblProduct.getModel().getValueAt(selectedRow, 6);
+        List<Supplier> list=new ArrayList<Supplier>();
+        list=supplierDao.querySupplier("");
+        int index = 0;
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getFullName().equals(sName)) {
+                index = i;
+                break;
+            }
+        }
+        this.cbxSupplier.setSelectedIndex(index);
+        
+        
+        btnSave.setEnabled(false);
+        btnCancle.setEnabled(false);
+        btnUpdate.setEnabled(true);
+        }
+        
+        
+    }//GEN-LAST:event_tblProductMouseClicked
+
+    private void btnDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDelActionPerformed
+        // TODO add your handling code here:
+          int selectedRow=this.tblProduct.getSelectedRow();
+          String id=this.tblProduct.getValueAt(selectedRow, 0).toString();
+           boolean flag= productDao.delProduct(id);
+         if(flag)
+         {
+             JOptionPane.showMessageDialog(this, "删除成功！");
+              List<ProductMore> list=productDao.queryProduct("");
+             refresh(list);
+         }else
+         {
+             JOptionPane.showMessageDialog(this, "删除失败！");
+         }
+        
+    }//GEN-LAST:event_btnDelActionPerformed
+
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        // TODO add your handling code here:
+        Product product=new Product();
+        product.setId(this.txtId.getText());
+        product.setName(this.txtName.getText());
+        product.setSafeStock(Integer.valueOf(this.txtSafeStorage.getText()));
+        product.setSuggestPurchasePrice(Double.valueOf(this.txtBuyPrice.getText()));
+        product.setSuggestSellPrice(Double.valueOf(this.txtSalePrice.getText()));
+        int index=this.cbxSupplier.getSelectedIndex();
+        Supplier stu=(Supplier)this.cbxSupplier.getModel().getElementAt(index);
+        String id=stu.getId();
+        product.setSupplierId(id);
+        if(this.txtId.getText()==null||this.txtName.getText()==null||"".equals(this.txtId.getText().trim())||"".equals(this.txtName.getText().trim()))
+        {
+         JOptionPane.showMessageDialog(this, "手工编号和产品名称为必填项！请认真检查");
+        } else {
+            productDao.addProduct(product);
+            JOptionPane.showMessageDialog(this, "添加成功！");
+        
+            List<ProductMore> list=productDao.queryProduct("");
+            refresh(list);
+        }
+       
+    }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void btnCancleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancleActionPerformed
+        // TODO add your handling code here:
+        this.txtId.setText("");
+        this.txtName.setText("");
+        this.txtSafeStorage.setText("");
+        this.txtBuyPrice.setText("");
+        this.txtSalePrice.setText("");
+        Object obj="";
+        this.cbxSupplier.setSelectedItem(obj); 
+        btnSave.setEnabled(false);
+        btnCancle.setEnabled(false);
+        btnUpdate.setEnabled(true);
+    }//GEN-LAST:event_btnCancleActionPerformed
+    private void addToCombox(){
+        List<Supplier> list=new ArrayList<Supplier>();
+        list=supplierDao.querySupplier("");
+        Supplier[] sup=list.toArray(new Supplier[1]);
+        
+        javax.swing.DefaultComboBoxModel<Supplier> model =  new javax.swing.DefaultComboBoxModel<>(sup);
+        this.cbxSupplier.setModel(model);
+    }
+     private void refresh(List<ProductMore> list) {
+        //1获得表格模型
+        DefaultTableModel dtm = (DefaultTableModel) this.tblProduct.getModel();
+        //2清空表格数据
+        while (dtm.getRowCount() > 0) {
+            dtm.removeRow(0);
+        }
+        //3显示新数据
+        for (ProductMore p : list) {
+            Vector v = new Vector();
+            v.add(p.getId());
+            v.add(p.getName());
+            v.add(p.getSafeStock());
+            v.add(p.getSuggestPurchasePrice());
+            v.add(p.getSuggestSellPrice());
+            v.add(p.getSupplierId());
+            v.add(p.getFullName());
+            dtm.addRow(v);
+        }
+  }
     /**
      * @param args the command line arguments
      */
@@ -245,19 +486,14 @@ public class ProductFrame extends javax.swing.JInternalFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new ProductFrame().setVisible(true);
-            }
-        });
+       
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAdd;
-    private javax.swing.JButton btnCancel;
+    private javax.swing.JButton btnCancle;
     private javax.swing.JButton btnDel;
     private javax.swing.JButton btnExit;
-    private javax.swing.JTextField btnSalePrice;
     private javax.swing.JButton btnSave;
     private javax.swing.JButton btnUpdate;
     private javax.swing.JComboBox cbxSupplier;
@@ -272,11 +508,12 @@ public class ProductFrame extends javax.swing.JInternalFrame {
     private javax.swing.JMenu jMenu2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JTable tblProduct;
     private javax.swing.JTextField txtBuyPrice;
     private javax.swing.JTextField txtId;
     private javax.swing.JTextField txtName;
+    private javax.swing.JTextField txtQuery;
     private javax.swing.JTextField txtSafeStorage;
+    private javax.swing.JTextField txtSalePrice;
     // End of variables declaration//GEN-END:variables
 }

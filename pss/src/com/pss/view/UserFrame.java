@@ -6,17 +6,33 @@
 
 package com.pss.view;
 
+import com.pss.po.User;
+import com.pss.service.IUserService;
+import com.pss.service.impl.UserServiceImpl;
+import com.pss.util.StringUtil;
+import java.util.List;
+import java.util.Vector;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+
 /**
  * 员工管理页面
- * @author张琦
+ * @author 张琦 - 界面
+ * @author 曲健磊 - 功能
  */
 public class UserFrame extends javax.swing.JInternalFrame {
-
+    IUserService userService = new UserServiceImpl();
+    
     /**
      * Creates new form UserFrame
      */
     public UserFrame() {
         initComponents();
+        List<User> userList = userService.queryUser("");
+        refresh(userList);
     }
 
     /**
@@ -29,15 +45,15 @@ public class UserFrame extends javax.swing.JInternalFrame {
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tblUserList = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        txtUserNameAdd = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
+        txtUserNo = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
-        jTextField4 = new javax.swing.JTextField();
-        jPasswordField1 = new javax.swing.JPasswordField();
+        txtRealName = new javax.swing.JTextField();
+        txtPassword = new javax.swing.JPasswordField();
         btnUpdate = new javax.swing.JButton();
         btnSave = new javax.swing.JButton();
         btnCancle = new javax.swing.JButton();
@@ -51,7 +67,7 @@ public class UserFrame extends javax.swing.JInternalFrame {
         setTitle("员工信息管理页面");
         setName(""); // NOI18N
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tblUserList.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null},
                 {null, null, null, null, null},
@@ -62,7 +78,12 @@ public class UserFrame extends javax.swing.JInternalFrame {
                 "用户名", "密码", "员工编号", "员工姓名", "角色"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        tblUserList.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblUserListMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(tblUserList);
 
         jLabel1.setText("用户名：");
 
@@ -73,18 +94,53 @@ public class UserFrame extends javax.swing.JInternalFrame {
         jLabel4.setText("员工姓名：");
 
         btnUpdate.setText("更新");
+        btnUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUpdateActionPerformed(evt);
+            }
+        });
 
         btnSave.setText("保存");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
 
         btnCancle.setText("取消");
+        btnCancle.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancleActionPerformed(evt);
+            }
+        });
 
         btnDelete.setText("删除");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
 
         btnExit.setText("退出");
+        btnExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExitActionPerformed(evt);
+            }
+        });
 
         btnAdd.setText("新增");
+        btnAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddActionPerformed(evt);
+            }
+        });
 
         btnQuery.setText("查询");
+        btnQuery.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnQueryActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -108,9 +164,9 @@ public class UserFrame extends javax.swing.JInternalFrame {
                             .addComponent(jLabel3))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(txtUserNameAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtUserNo, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 63, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addComponent(jLabel4)
@@ -119,10 +175,10 @@ public class UserFrame extends javax.swing.JInternalFrame {
                                 .addComponent(jLabel2)
                                 .addGap(33, 33, 33)))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(jPasswordField1)
-                            .addComponent(jTextField4, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)))
+                            .addComponent(txtPassword)
+                            .addComponent(txtRealName, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 186, Short.MAX_VALUE)
+                        .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(btnAdd)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(btnUpdate)
@@ -147,15 +203,15 @@ public class UserFrame extends javax.swing.JInternalFrame {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtUserNameAdd, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtRealName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtUserNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3))
                 .addGap(18, 18, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -171,6 +227,210 @@ public class UserFrame extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * 模糊查询
+     * @param evt 
+     */
+    private void btnQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQueryActionPerformed
+        String key = this.txtUserName.getText().trim();
+        List<User> userList = userService.queryUser(key);
+        refresh(userList);
+    }//GEN-LAST:event_btnQueryActionPerformed
+
+    /**
+     * 清空表单控件
+     * @param evt 
+     */
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        clearController();
+    }//GEN-LAST:event_btnAddActionPerformed
+
+    /**
+     * 清空表单控件的值
+     */
+    public void clearController() {
+        this.txtUserNameAdd.setText("");
+        this.txtPassword.setText("");
+        this.txtRealName.setText("");
+        this.txtUserNo.setText("");
+    }
+    
+    /**
+     * 新增用户
+     * @param evt 
+     */
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        String userName = this.txtUserNameAdd.getText().trim();
+        String password = this.txtPassword.getText().trim();
+        String userNo = this.txtUserNo.getText().trim();
+        String realName = this.txtRealName.getText().trim();
+        
+        // 非空判断
+        if (checkIsEmpty()) {
+            return ;
+        }
+        
+        User user = new User();
+        user.setUserName(userName);
+        user.setPassword(password);
+        user.setUserNo(userNo);
+        user.setRealName(realName);
+       boolean flag = this.userService.addUser(user);
+       if (flag) {
+           JOptionPane.showMessageDialog(null, "添加用户成功！");
+           clearController(); // 清空表单控件的值
+           String key = this.txtUserName.getText().trim();
+            List<User> userList = userService.queryUser(key);
+            refresh(userList);
+       } else {
+           JOptionPane.showMessageDialog(null, "添加用户失败！");
+       }
+    }//GEN-LAST:event_btnSaveActionPerformed
+
+    /**
+     * 判断表单控件是否为空
+     * @return 
+     */
+    public boolean checkIsEmpty() {
+        String userName = this.txtUserNameAdd.getText().trim();
+        String password = this.txtPassword.getText().trim();
+        String userNo = this.txtUserNo.getText().trim();
+        String realName = this.txtRealName.getText().trim();
+        if (StringUtil.isEmpty(userName)) {
+            JOptionPane.showMessageDialog(null, "用户名称不能为空！");
+            return true;
+        }
+        if (StringUtil.isEmpty(password)) {
+            JOptionPane.showMessageDialog(null, "用户密码不能为空！");
+            return true;
+        }
+        if (StringUtil.isEmpty(userNo)) {
+            JOptionPane.showMessageDialog(null, "用户编号不能为空！");
+            return true;
+        }
+        if (StringUtil.isEmpty(realName)) {
+            JOptionPane.showMessageDialog(null, "用户真实姓名不能为空！");
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * 取消
+     * @param evt 
+     */
+    private void btnCancleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancleActionPerformed
+        clearController();
+    }//GEN-LAST:event_btnCancleActionPerformed
+
+    /**
+     * 点击单元格时触发的事件
+     * @param evt 
+     */
+    private void tblUserListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblUserListMouseClicked
+        int selectedRow = this.tblUserList.getSelectedRow();
+        String userName = (String) this.tblUserList.getValueAt(selectedRow, 0);
+        String password = ((String) this.tblUserList.getValueAt(selectedRow, 1)).substring(16);
+        String realName = (String) this.tblUserList.getValueAt(selectedRow, 3);
+        String userNo = (String) this.tblUserList.getValueAt(selectedRow, 2);
+        
+        this.txtUserNameAdd.setText(userName);
+        this.txtPassword.setText(password);
+        this.txtRealName.setText(realName);
+        this.txtUserNo.setText(userNo);
+        
+    }//GEN-LAST:event_tblUserListMouseClicked
+
+    /**
+     * 退出当前窗体
+     * @param evt 
+     */
+    private void btnExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExitActionPerformed
+        this.setVisible(false);
+    }//GEN-LAST:event_btnExitActionPerformed
+
+    /**
+     * 删除当前用户
+     * @param evt 
+     */
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        if (this.txtUserNameAdd.getText().trim().equals("")) {
+            JOptionPane.showMessageDialog(null, "请先选择要删除的用户！");
+            return;
+        }
+        String userName = this.txtUserNameAdd.getText().trim();
+        boolean flag = this.userService.delUser(userName);
+        if (flag) {
+            // 删除成功
+            JOptionPane.showMessageDialog(null, "删除用户成功！");
+            String key = this.txtUserName.getText().trim();
+            List<User> userList = userService.queryUser(key);
+            refresh(userList);
+            clearController();
+        } else {
+            // 删除失败
+            JOptionPane.showMessageDialog(null, "删除用户失败，请重新选择！");
+        }
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    /**
+     * 更新用户
+     * @param evt 
+     */
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        User user = new User();
+        String userName = this.txtUserNameAdd.getText().trim();
+        String password = this.txtPassword.getText().trim();
+        String userNo = this.txtUserNo.getText().trim();
+        String realName = this.txtRealName.getText().trim();
+        user.setUserName(userName);
+        user.setPassword(password);
+        user.setRealName(realName);
+        user.setUserNo(userNo);
+        
+        // 非空判断
+        if (checkIsEmpty()) {
+            return ;
+        }
+        
+        boolean flag = this.userService.updateUser(user);
+        if (flag) {
+           JOptionPane.showMessageDialog(null, "修改用户成功！");
+           clearController(); // 清空表单控件的值
+           String key = this.txtUserName.getText().trim();
+            List<User> userList = userService.queryUser(key);
+            refresh(userList);
+       } else {
+           JOptionPane.showMessageDialog(null, "修改用户失败！");
+       }
+    }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void refresh(List<User> list) {
+        //1获得表格模型
+        DefaultTableModel dtm = (DefaultTableModel) this.tblUserList.getModel();
+        //2清空表格数据
+        while (dtm.getRowCount() > 0) {
+            dtm.removeRow(0);
+        }
+        //3显示新数据
+        for (User user : list) {
+            Vector v = new Vector();
+            v.add(user.getUserName());
+            v.add("****************" + user.getPassword());
+            
+            JPasswordField jpsd = new JPasswordField();
+            jpsd.setText(user.getPassword());
+            TableColumn col = this.tblUserList.getColumnModel().getColumn(1);
+            col.setCellEditor(new DefaultCellEditor(jpsd));
+            col.setMaxWidth(80);
+            col.setMinWidth(80);
+            
+            v.add(user.getUserNo());
+            v.add(user.getRealName());
+            v.add(user.getType().equals("1") ? "管理员" : "普通用户");
+            dtm.addRow(v);
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAdd;
@@ -184,12 +444,12 @@ public class UserFrame extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JPasswordField jPasswordField1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
+    private javax.swing.JTable tblUserList;
+    private javax.swing.JPasswordField txtPassword;
+    private javax.swing.JTextField txtRealName;
     private javax.swing.JTextField txtUserName;
+    private javax.swing.JTextField txtUserNameAdd;
+    private javax.swing.JTextField txtUserNo;
     // End of variables declaration//GEN-END:variables
 }

@@ -6,12 +6,14 @@
 
 package com.pss.view;
 
+import com.pss.po.support.LoginUser;
 import com.pss.util.FrameUtil;
 import java.beans.PropertyVetoException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
+import javax.swing.JOptionPane;
 
 /**
  * 进销存系统主窗体(管理员)
@@ -20,7 +22,6 @@ import javax.swing.JInternalFrame;
 public class AdminMainFrame extends javax.swing.JFrame {
     // 1.添加JDesktopPane
     JDesktopPane desk = new JDesktopPane();
-    
     /**
      * Creates new form PssMainFrame
      */
@@ -28,6 +29,8 @@ public class AdminMainFrame extends javax.swing.JFrame {
         initComponents();
         // 2.主窗体设置桌面面板
         this.setContentPane(desk);
+        String userName = LoginUser.user.getUserName();
+        JOptionPane.showMessageDialog(null, "欢迎您：" + userName + "！");
     }
 
     /**

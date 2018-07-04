@@ -20,4 +20,6 @@ public class Title {
     
     public static final String CTO = "CTO";
     
+    public static String[] titles = {GENERAL_MANAGER, DEPUTY_GENERAL_MANAGER, CEO, CTO};
+    
 }

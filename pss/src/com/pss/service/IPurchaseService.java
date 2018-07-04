@@ -6,7 +6,9 @@
 
 package com.pss.service;
 
+import com.pss.po.PurchaseDetail;
 import com.pss.po.PurchaseInQueryDto;
+import com.pss.po.PurchaseMaster;
 import com.pss.po.PurchaseQueryDto;
 import java.util.Date;
 import java.util.List;
@@ -15,7 +17,9 @@ import java.util.List;
  *IPurchaseService采购服务类
  * @author 吴延昭
  */
-public interface IPurchaseService {
+public interface IPurchaseService  {
     public List<PurchaseQueryDto> queryByDateAndName(Date startTime,Date endTime,String productName);
     public List<PurchaseInQueryDto> queryPurchaseInInfo(String key);
+    public Integer insertPurchaseMasterGetId(PurchaseMaster purchaseMaster);
+    public boolean insertPurchaseDetail(PurchaseDetail purchaseDetail);
 }

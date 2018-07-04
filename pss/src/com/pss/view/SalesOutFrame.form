@@ -85,6 +85,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="&#x67e5;&#x8be2;"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnQueryActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JTextField" name="txtQuery">
     </Component>
@@ -145,6 +148,9 @@
               <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tblPurchaseInMouseClicked"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -167,9 +173,9 @@
                 <Column editable="false" title="&#x5546;&#x54c1;&#x7f16;&#x53f7;" type="java.lang.Object"/>
                 <Column editable="false" title="&#x5546;&#x54c1;&#x540d;&#x79f0;" type="java.lang.Object"/>
                 <Column editable="false" title="&#x5546;&#x54c1;&#x5e93;&#x5b58;" type="java.lang.Object"/>
-                <Column editable="false" title="&#x9500;&#x552e;&#x6570;&#x91cf;" type="java.lang.Object"/>
+                <Column editable="true" title="&#x9500;&#x552e;&#x6570;&#x91cf;" type="java.lang.Object"/>
                 <Column editable="true" title="&#x9500;&#x552e;&#x4ef7;&#x683c;" type="java.lang.Object"/>
-                <Column editable="false" title="&#x5ba2;&#x6237;" type="java.lang.Object"/>
+                <Column editable="true" title="&#x5ba2;&#x6237;" type="java.lang.Object"/>
               </Table>
             </Property>
             <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
@@ -217,11 +223,17 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="&#x9500;&#x552e;&#x51fa;&#x5e93;"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnSaleDeliveryActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="btnDelete">
       <Properties>
         <Property name="text" type="java.lang.String" value="&#x5220;&#x9664;"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnDeleteActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

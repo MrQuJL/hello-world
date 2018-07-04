@@ -7,14 +7,16 @@ package com.pss.dao.impl;
 
 import com.pss.dao.BaseDao;
 import com.pss.dao.IPurchaseDao;
+import com.pss.po.PurchaseDetail;
 import com.pss.po.PurchaseInQueryDto;
+import com.pss.po.PurchaseMaster;
 import com.pss.po.PurchaseQueryDto;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
 /**
  * PurchaseDaoImpl类
- *
  * @author 吴延昭
  */
 public class PurchaseDaoImpl extends BaseDao implements IPurchaseDao {
@@ -58,6 +60,23 @@ public class PurchaseDaoImpl extends BaseDao implements IPurchaseDao {
                 + "where CONCAT(productName,supplierName) LIKE ?";
         Object[] params={"%"+key+"%"};
         return this.query(sql, PurchaseInQueryDto.class,params);
+    }
+
+    @Override
+    public int insertPurchaseMasterGetId(PurchaseMaster purchaseMaster) {
+        
+        String sql="INSERT into pss_purchase_master(purchase_date,operator_id) VALUES(?,?)";
+        Date date = purchaseMaster.getPurchaseDate();
+        String ds = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
+        Object[] params={ds,purchaseMaster.getOperatorId()};
+        return this.updateMasterGetId(sql, params);
+    }
+
+    @Override
+    public boolean insertPurchaseDetail(PurchaseDetail purchaseDetail) {
+        String sql="INSERT into pss_purchase_detail VALUES(?,?,?,?)";
+        Object[] params={purchaseDetail.getPurchaseId(),purchaseDetail.getProductId(),purchaseDetail.getPurchaseUnitPrice(),purchaseDetail.getPurchaseAmount()};
+        return this.update(sql, params);
     }
 
 }

@@ -20,20 +20,22 @@ public class BaseDao {
      */
     public Connection getConnection() {
         Connection conn = null;
-        String jdbcURL = "jdbc:mysql://localhost:3306/pss_customer?useUnicode=true&characterEncoding=UTF-8";
+        String jdbcURL = "jdbc:mysql://localhost:3306/pss??useUnicode=true&characterEncoding=UTF-8";
         String jdbcDriver = "com.mysql.jdbc.Driver";
         String user = "root";
-        String password = "";
+        String password = "123";
         try {
             DbUtils.loadDriver(jdbcDriver); // 加载mysql的数据库驱动
             conn = DriverManager.getConnection(jdbcURL, user, password);
         } catch (SQLException e) {
+            e.printStackTrace();
         }
         return conn;
     }
 
     /**
      * 查找多个对象
+     * 
      * @param <T>
      * @param sqlString
      * @param clazz
@@ -49,18 +51,19 @@ public class BaseDao {
             beans = (List) qRunner.query(conn, sqlString, new BeanListHandler(
                             clazz));
         } catch (SQLException e) {
+            e.printStackTrace();
         } finally {
             DbUtils.closeQuietly(conn);
         }
         return beans;
     }
-
+    
     /**
      * 查找多个对象(模糊查询)
+     * 
      * @param <T>
      * @param sqlString
      * @param clazz
-     * @param params
      * @return
      */
     public <T> List<T> query(String sqlString, Class clazz, Object...params) {
@@ -73,6 +76,7 @@ public class BaseDao {
             beans = (List) qRunner.query(conn, sqlString, new BeanListHandler(
                             clazz), params);
         } catch (SQLException e) {
+            e.printStackTrace();
         } finally {
             DbUtils.closeQuietly(conn);
         }
@@ -81,6 +85,7 @@ public class BaseDao {
 
     /**
      * 查找单个对象
+     * 
      * @param sqlString
      * @param clazz
      * @return
@@ -95,6 +100,7 @@ public class BaseDao {
             beans = (List) qRunner.query(conn, sqlString, new BeanListHandler(
                             clazz));
         } catch (SQLException e) {
+            e.printStackTrace();
         } finally {
             DbUtils.closeQuietly(conn);
         }
@@ -106,11 +112,11 @@ public class BaseDao {
 
     /**
      * 执行更新的sql语句,插入,修改,删除
+     * 
      * @param sqlString
-     * @param params
      * @return
      */
-    public boolean update(String sqlString, Object... params) {
+    public boolean update(String sqlString, Object[] params) {
         Connection conn = null;
         boolean flag = false;
         try {
@@ -121,10 +127,39 @@ public class BaseDao {
                 flag = true;
             }
         } catch (SQLException e) {
+            e.printStackTrace();
         } finally {
             DbUtils.closeQuietly(conn);
         }
         return flag;
+    }
+    
+    /**
+     * 增加记录返回主键
+     * @param sqlString
+     * @param params
+     * @return 
+     */
+    public int updateMasterGetId(String sqlString, Object... params) {
+        Connection conn = null;
+        PreparedStatement ps=null;
+        ResultSet rs=null;
+        int  id = -1;
+        try {
+            conn = getConnection();
+            ps=conn.prepareStatement(sqlString, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, (String) params[0]);
+            ps.setString(2, (String) params[1]);
+            ps.executeUpdate();
+            rs=ps.getGeneratedKeys();
+            if(rs.next()){
+                id=rs.getInt(1);
+            }
+        } catch (SQLException e) {
+        } finally {
+            DbUtils.closeQuietly(conn,ps,rs);
+        }
+        return id;
     }
     
 }

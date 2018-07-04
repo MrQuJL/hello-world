@@ -6,19 +6,37 @@
 
 package com.pss.view;
 
+import com.pss.dao.ISalesQueryDao;
+import com.pss.dao.impl.SalesQueryImpl;
+import com.pss.po.SaleQueryMore;
+import com.pss.util.SalesQueryExcelUtil;
+import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Vector;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
 
 /**
  * 销售查询界面
  * @author 李振
+ * @author 赵学成
  */
 public class SalesQueryFrame extends javax.swing.JInternalFrame {
-
+    ISalesQueryDao pdao = new SalesQueryImpl();
+    List<SaleQueryMore>psalelist=new ArrayList<SaleQueryMore>();
+    private javax.swing.JComboBox jComboBox1 = new javax.swing.JComboBox();        
     /**
      * Creates new form SalesQueryFrame
      */
     public SalesQueryFrame() {
         initComponents();
+         
         SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
         this.dpkStartTime.setFormats(sdf);
         this.dpkEndTime.setFormats(sdf);
@@ -44,26 +62,40 @@ public class SalesQueryFrame extends javax.swing.JInternalFrame {
         dpkEndTime = new org.jdesktop.swingx.JXDatePicker();
 
         setClosable(true);
+        setResizable(true);
+        setTitle("销售查询");
+        setToolTipText("");
 
         jLabel1.setText("商品名称：");
 
+        txtGoodName.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtGoodNameActionPerformed(evt);
+            }
+        });
+
         btnQuery.setText("查询");
+        btnQuery.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnQueryActionPerformed(evt);
+            }
+        });
 
         jLabel2.setText("-");
 
         tblSalesQuery.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "销售单号", "销售商品名", "销售数量", "销售价格", "销售金额", "客户名称", "销售时间"
+                "销售单号", "销售商品名", "销售数量", "销售价格", "销售金额", "客户名称"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, true, false, true
+                false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -71,8 +103,17 @@ public class SalesQueryFrame extends javax.swing.JInternalFrame {
             }
         });
         jScrollPane1.setViewportView(tblSalesQuery);
+        if (tblSalesQuery.getColumnModel().getColumnCount() > 0) {
+            tblSalesQuery.getColumnModel().getColumn(1).setResizable(false);
+            tblSalesQuery.getColumnModel().getColumn(4).setResizable(false);
+        }
 
         btnExportExcel.setText("导出Excel");
+        btnExportExcel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExportExcelActionPerformed(evt);
+            }
+        });
 
         dpkStartTime.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -131,6 +172,112 @@ public class SalesQueryFrame extends javax.swing.JInternalFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_dpkStartTimeActionPerformed
 
+    private void txtGoodNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtGoodNameActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtGoodNameActionPerformed
+
+    private void btnExportExcelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportExcelActionPerformed
+             
+            
+        JFileChooser savefile = new JFileChooser();//文件选择对话框
+        FileFilter filter = new FileNameExtensionFilter("Excel文件(*.xls)", "xls");
+        savefile.addChoosableFileFilter(filter);//添加过滤器
+        savefile.setFileFilter(filter);
+
+        int flag = savefile.showSaveDialog(this);//打开文件选选择对话框
+        
+        File file = null;
+        if (flag == JFileChooser.APPROVE_OPTION) {
+        //如果点击了保存按钮
+        file = savefile.getSelectedFile();//所选择的文件名（手写或选择），得到文件对象
+        
+        System.out.println("文件名：" + file.getAbsolutePath());
+        String filename = file.getAbsolutePath(); // 路径 + 文件名
+        //截取文件扩展名（文件名长度后4位）
+        String ftype = filename.substring(filename.length()-4);
+        
+        if(!ftype.equals(".xls")){
+            //如果用户没有填写扩展名，自动添加扩展名.xls
+            file = new File(filename+".xls");
+        }
+        
+        String key = this.txtGoodName.getText();//获取文本内容
+        Date sD = this.dpkStartTime.getDate();
+        Date eD = this.dpkEndTime.getDate();
+        if (sD == null || eD == null) {
+            JOptionPane.showMessageDialog(null, "查询日不能为空!");
+            return;
+        }
+        
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String startDate = sdf.format(sD);
+        String endDate = sdf.format(eD);
+        
+        System.out.println(key);
+        //根据key查询数据库
+        //1 拿到list
+//         List<SalesQuery> list = pdao.findSalesQuery(key);
+         List<SaleQueryMore> list= pdao.findSalesQuery(startDate, endDate, key);
+        //2 把list中的数据显示到表格
+        refresh(list);
+        
+        SalesQueryExcelUtil.printSale(list, file);
+        //集合获取数据，输出到文件
+        // psalelist 要导出的数据集合 例如：ArrayList<Student>
+      
+    }
+        
+// TODO add your handling code here:
+    }//GEN-LAST:event_btnExportExcelActionPerformed
+
+    private void btnQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQueryActionPerformed
+  // TODO add your handling code here:
+        String key = this.txtGoodName.getText();//获取文本内容
+        Date sD = this.dpkStartTime.getDate();
+        Date eD = this.dpkEndTime.getDate();
+        if (sD == null || eD == null) {
+            JOptionPane.showMessageDialog(null, "查询日不能为空!");
+            return;
+        }
+        
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String startDate = sdf.format(sD);
+        String endDate = sdf.format(eD);
+        
+        System.out.println(key);
+        //根据key查询数据库
+        //1 拿到list
+//         List<SalesQuery> list = pdao.findSalesQuery(key);
+         List<SaleQueryMore> list= pdao.findSalesQuery(startDate, endDate, key);
+        //2 把list中的数据显示到表格
+        refresh(list);
+       
+                
+    }//GEN-LAST:event_btnQueryActionPerformed
+ private void refresh(List<SaleQueryMore> list) {
+       //1获得表格模型
+        DefaultTableModel dtm = (DefaultTableModel) this.tblSalesQuery.getModel();
+        //2清空表格数据
+        while (dtm.getRowCount() > 0) {
+            dtm.removeRow(0);
+        }
+        //3显示新数据
+
+        for (SaleQueryMore  p : list) {
+            Vector v = new Vector();
+            v.add(p.getDeliver_id());
+            v.add(p.getName());
+            v.add(p.getSell_amount());
+            v.add(p.getSell_unit_price());
+            p.setSalemoney(p.getSell_amount(),p.getSell_unit_price());
+            v.add(p.getSalemoney());
+            v.add(p.getCustomer_name());
+            dtm.addRow(v);
+
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnExportExcel;
@@ -143,4 +290,6 @@ public class SalesQueryFrame extends javax.swing.JInternalFrame {
     private javax.swing.JTable tblSalesQuery;
     private javax.swing.JTextField txtGoodName;
     // End of variables declaration//GEN-END:variables
+
+
 }

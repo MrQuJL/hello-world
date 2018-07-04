@@ -5,11 +5,15 @@
  */
 package com.pss.view;
 
+import com.pss.po.PurchaseDetail;
 import com.pss.po.PurchaseInQueryDto;
+import com.pss.po.PurchaseMaster;
 import com.pss.service.IPurchaseService;
 import com.pss.service.impl.PurchaseServiceImpl;
+import java.util.Date;
 import java.util.List;
 import java.util.Vector;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -21,6 +25,8 @@ public class PurchaseInFrame extends javax.swing.JInternalFrame {
 
     IPurchaseService purchaseService = new PurchaseServiceImpl();
     List<PurchaseInQueryDto> list = null;
+    List<PurchaseMaster> masterList=null;
+    List<PurchaseDetail> detailList=null;
 
     /**
      * Creates new form PurchaseInFrame
@@ -108,6 +114,9 @@ public class PurchaseInFrame extends javax.swing.JInternalFrame {
             }
         });
         tblAddToPurchase.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                tblAddToPurchaseFocusGained(evt);
+            }
             public void focusLost(java.awt.event.FocusEvent evt) {
                 tblAddToPurchaseFocusLost(evt);
             }
@@ -117,11 +126,28 @@ public class PurchaseInFrame extends javax.swing.JInternalFrame {
                 tblAddToPurchaseMousePressed(evt);
             }
         });
+        tblAddToPurchase.addInputMethodListener(new java.awt.event.InputMethodListener() {
+            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
+            }
+            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
+                tblAddToPurchaseInputMethodTextChanged(evt);
+            }
+        });
         jScrollPane2.setViewportView(tblAddToPurchase);
 
         btnPurchaseIn.setText("采购入库");
+        btnPurchaseIn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPurchaseInActionPerformed(evt);
+            }
+        });
 
         btnDelete.setText("删除");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
 
         jLabel2.setText("请输入商品名称/供应商名称：");
 
@@ -213,15 +239,65 @@ public class PurchaseInFrame extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_tblGoodsMouseClicked
 
     private void tblAddToPurchaseMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblAddToPurchaseMousePressed
-
-    }//GEN-LAST:event_tblAddToPurchaseMousePressed
-
-    private void tblAddToPurchaseFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tblAddToPurchaseFocusLost
         int selectedIndex=this.tblAddToPurchase.getSelectedRow();
         int amount=(int)this.tblAddToPurchase.getValueAt(selectedIndex, 4);
         float price=(float)this.tblAddToPurchase.getValueAt(selectedIndex, 5);
         this.tblAddToPurchase.setValueAt(amount*price, selectedIndex, 6);
+    }//GEN-LAST:event_tblAddToPurchaseMousePressed
+
+    private void tblAddToPurchaseFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tblAddToPurchaseFocusLost
+
     }//GEN-LAST:event_tblAddToPurchaseFocusLost
+
+    private void tblAddToPurchaseFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tblAddToPurchaseFocusGained
+        
+    }//GEN-LAST:event_tblAddToPurchaseFocusGained
+
+    private void tblAddToPurchaseInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_tblAddToPurchaseInputMethodTextChanged
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tblAddToPurchaseInputMethodTextChanged
+
+    private void btnPurchaseInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPurchaseInActionPerformed
+        int count=this.tblAddToPurchase.getRowCount();
+        //SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
+        for(int i=0;i<count;i++){
+             Date date=new Date();
+             //String dateStr=sdf.format(date);
+//            try {
+//                date=sdf.parse(dateStr);
+//            } catch (ParseException ex) {
+//                Logger.getLogger(PurchaseInFrame.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+             String operatorId="110";
+             PurchaseMaster pm=new PurchaseMaster(0,date,operatorId);
+             // 向主表中插入数据，并获得返回的id
+             Integer detailId=purchaseService.insertPurchaseMasterGetId(pm);
+             if (detailId == null) { // 向主表中插入数据失败
+                 JOptionPane.showMessageDialog(null, "添加采购单失败!");
+                 return;
+             }
+             // 向从表中插入数据
+             String productId=(String)this.tblAddToPurchase.getValueAt(i, 0);
+             float purchaseUnitPrice=(float)this.tblAddToPurchase.getValueAt(i, 5);
+             int purchaseAmount=(int)this.tblAddToPurchase.getValueAt(i, 4);
+             PurchaseDetail pd=new PurchaseDetail(detailId,productId,purchaseUnitPrice,purchaseAmount);
+             boolean flag=purchaseService.insertPurchaseDetail(pd);
+             if(!flag){
+                 JOptionPane.showMessageDialog(this, "第"+i+"个记录入库失败！");
+                 return;
+             }
+        }
+        JOptionPane.showMessageDialog(this, "入库成功！");
+    }//GEN-LAST:event_btnPurchaseInActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        int selectedRow=this.tblAddToPurchase.getSelectedRow();
+        DefaultTableModel dtm = (DefaultTableModel) this.tblAddToPurchase.getModel();
+        if(-1==selectedRow){
+            JOptionPane.showMessageDialog(this, "请选择删除行！");
+        }
+        dtm.removeRow(selectedRow);
+    }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void refresh(List<PurchaseInQueryDto> list) {
         //1获得表格模型

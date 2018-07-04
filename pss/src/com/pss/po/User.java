@@ -13,7 +13,7 @@ package com.pss.po;
 public class User {
     private String userName;
     private String password;
-    private char type;
+    private String type;
     private String realName;
     private String userNo;
 
@@ -48,14 +48,14 @@ public class User {
     /**
      * @return the type
      */
-    public char getType() {
+    public String getType() {
         return type;
     }
 
     /**
      * @param type the type to set
      */
-    public void setType(char type) {
+    public void setType(String type) {
         this.type = type;
     }
 

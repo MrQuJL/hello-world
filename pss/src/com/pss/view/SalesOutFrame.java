@@ -6,17 +6,61 @@
 
 package com.pss.view;
 
+import com.pss.dao.ICustomerDao;
+import com.pss.dao.IDeliverDao;
+import com.pss.dao.IProductSupplierDao;
+import com.pss.dao.IPurchaseDetailDao;
+import com.pss.dao.impl.CustomerDaoImpl;
+import com.pss.dao.impl.DeliverDaoImpl;
+import com.pss.dao.impl.ProductSupplierDaoImpl;
+import com.pss.dao.impl.PurchaseDetailDaoImpl;
+import com.pss.dto.ProductSupplierDTO;
+import com.pss.po.Customer;
+import com.pss.po.Deliver;
+import com.pss.po.support.LoginUser;
+import java.awt.HeadlessException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Vector;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+
 /**
  * 销售出库界面
- * @author 李振
+ * @author 李振 张琦（功能）
  */
 public class SalesOutFrame extends javax.swing.JInternalFrame {
-
+    IProductSupplierDao prosupdao=new ProductSupplierDaoImpl();
+    ICustomerDao cusdao=new CustomerDaoImpl();
+    IDeliverDao deldao=new DeliverDaoImpl();
+    IPurchaseDetailDao pddao=new PurchaseDetailDaoImpl();
+    private javax.swing.JComboBox jcbCus =new javax.swing.JComboBox();
     /**
      * Creates new form NewJInternalFrame
      */
     public SalesOutFrame() {
         initComponents();
+        DefaultTableModel dtm = (DefaultTableModel) this.tblAddSales.getModel();
+        //2清空表格数据
+        while (dtm.getRowCount() > 0) {
+            dtm.removeRow(0);
+        }
+        jcbCus=new javax.swing.JComboBox();
+       
+        List<Customer> list=cusdao.findAll();
+         Customer[] cus=new Customer[list.size()];
+        for(int i=0;i<list.size();i++){
+            cus[i]=list.get(i);
+        }
+        javax.swing.DefaultComboBoxModel<Customer> model=new  javax.swing.DefaultComboBoxModel<Customer>(
+             cus         
+        );
+       this.jcbCus.setModel(model);
+       TableColumn col=tblAddSales.getColumnModel().getColumn(5);
+       col.setCellEditor(new DefaultCellEditor(jcbCus));
     }
 
     /**
@@ -42,6 +86,11 @@ public class SalesOutFrame extends javax.swing.JInternalFrame {
         setTitle("销售出库");
 
         btnQuery.setText("查询");
+        btnQuery.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnQueryActionPerformed(evt);
+            }
+        });
 
         tblPurchaseIn.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -62,6 +111,11 @@ public class SalesOutFrame extends javax.swing.JInternalFrame {
                 return canEdit [columnIndex];
             }
         });
+        tblPurchaseIn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblPurchaseInMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tblPurchaseIn);
 
         lblAdd.setText("加入销售：");
@@ -78,7 +132,7 @@ public class SalesOutFrame extends javax.swing.JInternalFrame {
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, true, false
+                false, false, false, true, true, true
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -96,8 +150,18 @@ public class SalesOutFrame extends javax.swing.JInternalFrame {
         }
 
         btnSaleDelivery.setText("销售出库");
+        btnSaleDelivery.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaleDeliveryActionPerformed(evt);
+            }
+        });
 
         btnDelete.setText("删除");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -150,7 +214,150 @@ public class SalesOutFrame extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQueryActionPerformed
+        String key=this.txtQuery.getText().trim();
+        List<ProductSupplierDTO> list=prosupdao.findAll(key);
+        refreshPurchase(list);
+    }//GEN-LAST:event_btnQueryActionPerformed
 
+    private void tblPurchaseInMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblPurchaseInMouseClicked
+        int selectedRow = this.tblPurchaseIn.getSelectedRow();
+        //获取行中的数据,保证数据类型匹配
+        String id = (String)this.tblPurchaseIn.getValueAt(selectedRow, 0);
+        ProductSupplierDTO product=new ProductSupplierDTO();
+        DefaultTableModel dtm = (DefaultTableModel) this.tblAddSales.getModel();
+        int rowCount = dtm.getRowCount();
+        if(rowCount>0){
+            for (int i = 0; i < rowCount; i++) {
+                String s = (String) dtm.getValueAt(i, 0);
+                if(s.equals(id)){
+                    JOptionPane.showMessageDialog(this, "不能重复添加");
+                    return;
+                }
+            }
+        }
+        product.setId(id);
+        List<ProductSupplierDTO> list=prosupdao.findById(product);
+        refreshAddSale(list);
+        
+       
+    }//GEN-LAST:event_tblPurchaseInMouseClicked
+
+    private void btnSaleDeliveryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaleDeliveryActionPerformed
+        
+        DefaultTableModel dtm = (DefaultTableModel) this.tblAddSales.getModel();
+        int rowCount = dtm.getRowCount();
+        boolean flag=false;  
+        for(int i=0;i<rowCount;i++){
+            try{
+                String id = (String)this.tblAddSales.getValueAt(i, 0);    
+                String count=(String)this.tblAddSales.getValueAt(i, 3);
+                int stock=(int)this.tblAddSales.getValueAt(i, 2);
+                String unitprice=(String)this.tblAddSales.getValueAt(i, 4);
+                SimpleDateFormat date=new SimpleDateFormat("yyyy-MM-dd");
+                String time=date.format(new java.util.Date());
+                
+                int count1=Integer.parseInt(count);
+                if(count1>stock){
+                   JOptionPane.showMessageDialog(this, "销售数量不能大于库存量！");//模态对话框
+                   break;
+                }
+                Customer cus=(Customer)this.tblAddSales.getValueAt(i, 5);
+                String cusid=cus.getId();
+                String userid=LoginUser.user.getUserNo();
+                Deliver d=new Deliver(id,unitprice,count,cusid,userid,time);
+                flag=deldao.insert(d);
+                if(flag)
+                {
+                   pddao.updatecount(count1,id);
+                   
+                }
+            }catch(HeadlessException | NumberFormatException ex){
+               JOptionPane.showMessageDialog(this, "销售数量或价格不能为空且必须为数字！");//模态对话框
+               return;
+            }
+        }
+       
+        if(flag)
+        {
+             String key=this.txtQuery.getText().trim();
+             List<ProductSupplierDTO> list=prosupdao.findAll(key);
+             refreshPurchase(list);
+             while (dtm.getRowCount() > 0) {
+                        dtm.removeRow(0);
+             }
+             JOptionPane.showMessageDialog(this, "出库成功！");//模态对话框 
+        }
+        else{
+             JOptionPane.showMessageDialog(this, "出库失败！");//模态对话框
+        }
+        
+//        int selectedRow = this.tblAddSales.getSelectedRow();
+//        //获取行中的数据,保证数据类型匹配
+//        String id = (String)this.tblAddSales.getValueAt(selectedRow, 0);    
+//        String count=(String)this.tblAddSales.getValueAt(selectedRow, 3);
+//        String unitprice=(String)this.tblAddSales.getValueAt(selectedRow, 4);
+//        Customer cus=(Customer)this.jcbCus.getSelectedItem();
+//        String cusid=cus.getId();
+//        String userid=LoginUser.user.getUserNo();
+//        Deliver d=new Deliver(id,unitprice,count,cusid,userid);
+//        boolean flag=deldao.insert(d);
+//        if(flag)
+//        {
+//             JOptionPane.showMessageDialog(this, "出库成功！");//模态对话框
+//        }
+//        else{
+//             JOptionPane.showMessageDialog(this, "出库失败！");//模态对话框
+//        }
+        
+        
+        
+        
+    }//GEN-LAST:event_btnSaleDeliveryActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        int selectedRow = this.tblAddSales.getSelectedRow();
+        DefaultTableModel dtm = (DefaultTableModel) this.tblAddSales.getModel();
+        dtm.removeRow(selectedRow);
+        
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void refreshPurchase(List<ProductSupplierDTO> list) {
+         //1获得表格模型
+        DefaultTableModel dtm = (DefaultTableModel) this.tblPurchaseIn.getModel();
+        //2清空表格数据
+        while (dtm.getRowCount() > 0) {
+            dtm.removeRow(0);
+        }
+        //3显示新数据
+        for (ProductSupplierDTO ps : list) {
+            Vector v = new Vector();
+            v.add(ps.getId());
+            v.add(ps.getName());
+            v.add(ps.getSuggestSellPrice());
+            v.add(ps.getPurchaseAmount());
+            v.add(ps.getSupplierId());
+            v.add(ps.getSimplieName());
+            dtm.addRow(v);
+        }
+    }
+    private void refreshAddSale(List<ProductSupplierDTO> list) {
+         //1获得表格模型
+        DefaultTableModel dtm = (DefaultTableModel) this.tblAddSales.getModel();
+        //2清空表格数据
+        
+        //3显示新数据
+        for (ProductSupplierDTO ps : list) {
+            Vector v = new Vector();
+            v.add(ps.getId());
+            v.add(ps.getName()); 
+            v.add(ps.getPurchaseAmount());
+            dtm.addRow(v);
+
+        }
+        
+        
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnQuery;

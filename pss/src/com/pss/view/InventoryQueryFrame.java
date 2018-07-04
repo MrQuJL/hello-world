@@ -6,12 +6,27 @@
 
 package com.pss.view;
 
+import com.pss.dto.InventoryDTO;
+import com.pss.dto.PurchaseCountDTO;
+import com.pss.service.IInventoryService;
+import com.pss.service.impl.InventoryServiceImpl;
+import com.pss.util.ExportExcelUtil;
+import java.io.File;
+import java.util.List;
+import java.util.Vector;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
+
 /**
  * 库存查询界面
- * @author 赵学成
+ * @author 赵学成 - 界面
+ * @author 曲健磊 - 功能
  */
 public class InventoryQueryFrame extends javax.swing.JInternalFrame {
-
+    private IInventoryService inventoryService = new InventoryServiceImpl();
+    
     /**
      * Creates new form NewJInternalFrame1
      */
@@ -42,9 +57,14 @@ public class InventoryQueryFrame extends javax.swing.JInternalFrame {
 
         jLabel1.setText("查询条件：");
 
-        jcbQuery.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jcbQuery.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "商品名称", "供应商名称" }));
 
         btnQuery.setText("查询");
+        btnQuery.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnQueryActionPerformed(evt);
+            }
+        });
 
         tblInventory.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -64,9 +84,19 @@ public class InventoryQueryFrame extends javax.swing.JInternalFrame {
         });
         jScrollPane1.setViewportView(tblInventory);
 
-        btnPrint.setText("打印报表");
+        btnPrint.setText("导出Excel");
+        btnPrint.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPrintActionPerformed(evt);
+            }
+        });
 
         btnExit.setText("退出");
+        btnExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExitActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -113,6 +143,91 @@ public class InventoryQueryFrame extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * 退出当前对话框
+     * @param evt 
+     */
+    private void btnExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExitActionPerformed
+        this.setVisible(false);
+    }//GEN-LAST:event_btnExitActionPerformed
+
+    /**
+     * 库存查询（商品名称/供应商名称）
+     * @param evt 
+     */
+    private void btnQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQueryActionPerformed
+        // 1.获取查询条件
+        String query = (String) this.jcbQuery.getSelectedItem();
+        String condition = this.txtQuery.getText().trim();
+        if (query.equals("商品名称")) { // 根据商品名称进行查询
+            List<InventoryDTO> list = inventoryService.listInventoryByPName(condition);
+            refresh(list);
+        } else { // 根据供应商名称进行查询
+            List<InventoryDTO> list = inventoryService.listInventoryBySName(condition);
+            refresh(list);
+        }
+        
+    }//GEN-LAST:event_btnQueryActionPerformed
+
+    /**
+     * 导出库存统计
+     * @param evt 
+     */
+    private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
+        JFileChooser savefile = new JFileChooser();//文件选择对话框
+        FileFilter filter = new FileNameExtensionFilter("Excel文件(*.xls)", "xls");
+        savefile.addChoosableFileFilter(filter);//添加过滤器
+        savefile.setFileFilter(filter);
+
+        int flag = savefile.showSaveDialog(this);//打开文件选选择对话框
+        File file = null;
+        if (flag == JFileChooser.APPROVE_OPTION) {
+            //如果点击了保存按钮
+            file = savefile.getSelectedFile();//所选择的文件名（手写或选择）
+            System.out.println("文件名：" + file.getAbsolutePath());
+            String filename = file.getAbsolutePath();
+            //截取文件扩展名（文件名长度后4位）
+            String ftype = filename.substring(filename.length()-4);
+            if(!ftype.equals(".xls")){
+                //如果用户没有填写扩展名，自动添加扩展名.xls
+                file = new File(filename+".xls");
+            }
+            //集合获取数据，输出到文件
+            List<InventoryDTO> list = null;
+            String query = (String) this.jcbQuery.getSelectedItem(); // 判断是根据商品名称查询还是供应商名称查询
+            String condition = this.txtQuery.getText().trim();
+            if (query.equals("商品名称")) { // 根据商品名称进行查询
+                list = this.inventoryService.listInventoryByPName(condition);
+            } else { // 根据供应商名称进行查询
+                list = this.inventoryService.listInventoryBySName(condition);
+            }
+            ExportExcelUtil.printInventory(list, file);
+        }
+    }//GEN-LAST:event_btnPrintActionPerformed
+
+    private void refresh(List<InventoryDTO> list) {
+        //1获得表格模型
+        DefaultTableModel dtm = (DefaultTableModel) this.tblInventory.getModel();
+        //2清空表格数据
+        while (dtm.getRowCount() > 0) {
+            dtm.removeRow(0);
+        }
+        //3显示新数据
+        for (InventoryDTO inv : list) {
+            Vector v = new Vector();
+            v.add(inv.getProductId());
+            v.add(inv.getProductName());
+            v.add(inv.getPurchaseAmount());
+            v.add(inv.getSafeStock());
+            v.add(inv.getSpprice());
+            v.add(inv.getSpdate());
+            v.add(inv.getsSellPrice());
+            v.add(inv.getDeliverDate());
+            v.add(inv.getSupplierId());
+            v.add(inv.getSupplierName());
+            dtm.addRow(v);
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnExit;

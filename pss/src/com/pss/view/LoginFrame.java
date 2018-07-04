@@ -6,12 +6,20 @@
 
 package com.pss.view;
 
+import com.pss.po.User;
+import com.pss.po.support.LoginUser;
+import com.pss.service.IUserService;
+import com.pss.service.impl.UserServiceImpl;
+import javax.swing.JOptionPane;
+
 /**
  * 登录页面
- * @author 张琦
+ * @author 张琦 - 界面
+ * @author 曲健磊 - 功能
  */
 public class LoginFrame extends javax.swing.JFrame {
-
+    IUserService userService = new UserServiceImpl();
+    
     /**
      * Creates new form LoginFrame
      */
@@ -33,12 +41,12 @@ public class LoginFrame extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         txtUserName = new javax.swing.JTextField();
-        txtPwd = new javax.swing.JTextField();
         rbtnAdmin = new javax.swing.JRadioButton();
         rbtnUser = new javax.swing.JRadioButton();
         btnLogin = new javax.swing.JButton();
         btnCancle = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
+        txtPwd = new javax.swing.JPasswordField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("登录页面");
@@ -81,17 +89,16 @@ public class LoginFrame extends javax.swing.JFrame {
                         .addComponent(btnLogin)
                         .addComponent(jLabel3)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(txtUserName)
-                        .addComponent(txtPwd, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE))
+                    .addComponent(txtUserName, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addComponent(btnCancle)
                         .addGroup(layout.createSequentialGroup()
                             .addComponent(rbtnAdmin)
                             .addGap(18, 18, 18)
-                            .addComponent(rbtnUser))))
+                            .addComponent(rbtnUser)))
+                    .addComponent(txtPwd))
                 .addContainerGap(89, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -128,18 +135,32 @@ public class LoginFrame extends javax.swing.JFrame {
      */
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         if (this.rbtnAdmin.isSelected()) { // 以管理员身份登录
-            // TODO 去数据库查询用户表
-            
-            AdminMainFrame main = new AdminMainFrame(); // 创建管理员主页面
-            main.setVisible(true); // 显示主页面
+            User user = new User();
+            user.setUserName(this.txtUserName.getText().trim());
+            user.setPassword(this.txtPwd.getText().trim());
+            boolean flag = userService.loginAdmin(user);
+            if (flag) {
+                LoginUser.user = user; // 将当前登录的用户信息存入静态域中
+                AdminMainFrame main = new AdminMainFrame(); // 创建管理员主页面
+                main.setVisible(true); // 显示主页面
+                this.setVisible(false);
+            } else  {
+                JOptionPane.showMessageDialog(null, "登录失败，请重新输入用户名和密码！");
+            }
         } else { // 以普通员工身份登录
-            // TODO 去数据库查询用户表
-            
-            UserMainFrame main = new UserMainFrame(); // 创建普通用户主页面
-            main.setVisible(true); // 显示主页面
+            User user = new User();
+            user.setUserName(this.txtUserName.getText().trim());
+            user.setPassword(this.txtPwd.getText().trim());
+            boolean flag = userService.loginUser(user);
+            if (flag) {
+                LoginUser.user = user; // 将当前登录的用户信息存入静态域中
+                UserMainFrame main = new UserMainFrame(); // 创建普通用户主页面
+                main.setVisible(true); // 显示主页面
+                this.setVisible(false);
+            } else {
+                JOptionPane.showMessageDialog(null, "登录失败，请重新输入用户名和密码！");
+            }
         }    
-        // 隐藏当前登录页面
-        this.setVisible(false);
     }//GEN-LAST:event_btnLoginActionPerformed
 
     /**
@@ -187,7 +208,7 @@ public class LoginFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JRadioButton rbtnAdmin;
     private javax.swing.JRadioButton rbtnUser;
-    private javax.swing.JTextField txtPwd;
+    private javax.swing.JPasswordField txtPwd;
     private javax.swing.JTextField txtUserName;
     // End of variables declaration//GEN-END:variables
 }

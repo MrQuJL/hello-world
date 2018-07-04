@@ -8,7 +8,9 @@ package com.pss.service.impl;
 
 import com.pss.dao.IPurchaseDao;
 import com.pss.dao.impl.PurchaseDaoImpl;
+import com.pss.po.PurchaseDetail;
 import com.pss.po.PurchaseInQueryDto;
+import com.pss.po.PurchaseMaster;
 import com.pss.po.PurchaseQueryDto;
 import com.pss.service.IPurchaseService;
 import java.util.Date;
@@ -29,6 +31,17 @@ public class PurchaseServiceImpl implements IPurchaseService{
     @Override
     public List<PurchaseInQueryDto> queryPurchaseInInfo(String key) {
         return purchaseDao.queryPurchaseInInfo(key);
+    }
+
+    @Override
+    public Integer insertPurchaseMasterGetId(PurchaseMaster purchaseMaster) {
+        int selectedId = purchaseDao.insertPurchaseMasterGetId(purchaseMaster);
+        return selectedId;
+    }
+
+    @Override
+    public boolean insertPurchaseDetail(PurchaseDetail purchaseDetail) {
+        return purchaseDao.insertPurchaseDetail(purchaseDetail);
     }
     
 }

@@ -6,22 +6,37 @@
 
 package com.pss.view;
 
+import com.pss.dto.PurchaseCountDTO;
+import com.pss.service.IPurchaseCountService;
+import com.pss.service.impl.PurchaseCountServiceImpl;
+import com.pss.util.ExportExcelUtil;
+import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Vector;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
 
 /**
  * 采购统计页面
- * @author 赵学成
+ * @author 赵学成 - 界面
+ * @author 曲健磊 - 功能
  */
 public class PurchaseCountFrame extends javax.swing.JInternalFrame {
-
+    private IPurchaseCountService purchaseService = new PurchaseCountServiceImpl();
+    
     /**
      * Creates new form NewJInternalFrame
      */
     public PurchaseCountFrame() {
         initComponents();
         SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
-        this.dpkOne.setFormats(sdf);
-        this.dpkTwo.setFormats(sdf);
+        this.dpkStart.setFormats(sdf);
+        this.dpkEnd.setFormats(sdf);
     }
 
     /**
@@ -33,8 +48,6 @@ public class PurchaseCountFrame extends javax.swing.JInternalFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-        jcbProcurement = new javax.swing.JComboBox();
         jLabel2 = new javax.swing.JLabel();
         btnSummary = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
@@ -42,27 +55,22 @@ public class PurchaseCountFrame extends javax.swing.JInternalFrame {
         tblProcurement = new javax.swing.JTable();
         btnPrint = new javax.swing.JButton();
         btnExit = new javax.swing.JButton();
-        dpkOne = new org.jdesktop.swingx.JXDatePicker();
-        dpkTwo = new org.jdesktop.swingx.JXDatePicker();
+        dpkStart = new org.jdesktop.swingx.JXDatePicker();
+        dpkEnd = new org.jdesktop.swingx.JXDatePicker();
+        jLabel4 = new javax.swing.JLabel();
 
         setClosable(true);
         setTitle("采购统计");
         setToolTipText("");
 
-        jLabel1.setText("按");
-
-        jcbProcurement.setEditable(true);
-        jcbProcurement.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        jcbProcurement.setToolTipText("");
-        jcbProcurement.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jcbProcurementActionPerformed(evt);
-            }
-        });
-
         jLabel2.setText("从");
 
         btnSummary.setText("汇总");
+        btnSummary.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSummaryActionPerformed(evt);
+            }
+        });
 
         jLabel3.setText("-----");
 
@@ -87,7 +95,7 @@ public class PurchaseCountFrame extends javax.swing.JInternalFrame {
             tblProcurement.getColumnModel().getColumn(0).setResizable(false);
         }
 
-        btnPrint.setText("打印报表");
+        btnPrint.setText("导出Excel");
         btnPrint.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnPrintActionPerformed(evt);
@@ -95,6 +103,13 @@ public class PurchaseCountFrame extends javax.swing.JInternalFrame {
         });
 
         btnExit.setText("退出");
+        btnExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExitActionPerformed(evt);
+            }
+        });
+
+        jLabel4.setText("按商品名称");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -110,22 +125,20 @@ public class PurchaseCountFrame extends javax.swing.JInternalFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(12, 12, 12)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 641, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel1)
+                                .addComponent(jLabel4)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jcbProcurement, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
                                 .addComponent(jLabel2)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(dpkOne, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(dpkStart, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel3)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(dpkTwo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(dpkEnd, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(btnSummary)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 631, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -133,47 +146,106 @@ public class PurchaseCountFrame extends javax.swing.JInternalFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jcbProcurement, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
                     .addComponent(btnSummary)
                     .addComponent(jLabel3)
-                    .addComponent(dpkOne, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(dpkTwo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(dpkStart, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(dpkEnd, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, 14, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnPrint)
                     .addComponent(btnExit))
                 .addContainerGap())
         );
 
-        jcbProcurement.getAccessibleContext().setAccessibleName("");
-
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jcbProcurementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcbProcurementActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jcbProcurementActionPerformed
-
+    /**
+     * 导出Excel
+     * @param evt 
+     */
     private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
-        // TODO add your handling code here:
+        JFileChooser savefile = new JFileChooser();//文件选择对话框
+        FileFilter filter = new FileNameExtensionFilter("Excel文件(*.xls)", "xls");
+        savefile.addChoosableFileFilter(filter);//添加过滤器
+        savefile.setFileFilter(filter);
+
+        int flag = savefile.showSaveDialog(this);//打开文件选选择对话框
+        File file = null;
+        if (flag == JFileChooser.APPROVE_OPTION) {
+            //如果点击了保存按钮
+            file = savefile.getSelectedFile();//所选择的文件名（手写或选择）
+            System.out.println("文件名：" + file.getAbsolutePath());
+            String filename = file.getAbsolutePath();
+            //截取文件扩展名（文件名长度后4位）
+            String ftype = filename.substring(filename.length()-4);
+            if(!ftype.equals(".xls")){
+                //如果用户没有填写扩展名，自动添加扩展名.xls
+                file = new File(filename+".xls");
+            }
+            //集合获取数据，输出到文件
+            List<PurchaseCountDTO> list = this.purchaseService.listPurchaseCount(this.dpkStart.getDate(), this.dpkEnd.getDate());
+            ExportExcelUtil.printPurchaseCount(list, file);
+        }
     }//GEN-LAST:event_btnPrintActionPerformed
 
+    /**
+     * 按照商品名称日期范围进行采购统计
+     * @param evt 
+     */
+    private void btnSummaryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSummaryActionPerformed
+        Date startDate = this.dpkStart.getDate();
+        Date endDate = this.dpkEnd.getDate();
+        if (startDate == null || endDate == null) {
+            JOptionPane.showMessageDialog(null, "请先选择要统计的日期范围！");
+            return;
+        }
+        
+        List<PurchaseCountDTO> list = purchaseService.listPurchaseCount(startDate, endDate);
+        refresh(list);
+    }//GEN-LAST:event_btnSummaryActionPerformed
+
+    /**
+     * 退出当前对话框
+     * @param evt 
+     */
+    private void btnExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExitActionPerformed
+        this.setVisible(false);
+    }//GEN-LAST:event_btnExitActionPerformed
+
+    private void refresh(List<PurchaseCountDTO> list) {
+        //1获得表格模型
+        DefaultTableModel dtm = (DefaultTableModel) this.tblProcurement.getModel();
+        //2清空表格数据
+        while (dtm.getRowCount() > 0) {
+            dtm.removeRow(0);
+        }
+        //3显示新数据
+        for (PurchaseCountDTO pcDTO : list) {
+            Vector v = new Vector();
+            v.add(pcDTO.getProductId());
+            v.add(pcDTO.getProductName());
+            v.add(pcDTO.getPurchaseAmount());
+            v.add(pcDTO.getPurchaseMoney());
+            dtm.addRow(v);
+        }
+    }
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnExit;
     private javax.swing.JButton btnPrint;
     private javax.swing.JButton btnSummary;
-    private org.jdesktop.swingx.JXDatePicker dpkOne;
-    private org.jdesktop.swingx.JXDatePicker dpkTwo;
-    private javax.swing.JLabel jLabel1;
+    private org.jdesktop.swingx.JXDatePicker dpkEnd;
+    private org.jdesktop.swingx.JXDatePicker dpkStart;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JComboBox jcbProcurement;
     private javax.swing.JTable tblProcurement;
     // End of variables declaration//GEN-END:variables
 }

@@ -79,11 +79,9 @@
     <Component class="javax.swing.JComboBox" name="jcbQuery">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="4">
-            <StringItem index="0" value="Item 1"/>
-            <StringItem index="1" value="Item 2"/>
-            <StringItem index="2" value="Item 3"/>
-            <StringItem index="3" value="Item 4"/>
+          <StringArray count="2">
+            <StringItem index="0" value="&#x5546;&#x54c1;&#x540d;&#x79f0;"/>
+            <StringItem index="1" value="&#x4f9b;&#x5e94;&#x5546;&#x540d;&#x79f0;"/>
           </StringArray>
         </Property>
       </Properties>
@@ -92,6 +90,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="&#x67e5;&#x8be2;"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnQueryActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JTextField" name="txtQuery">
     </Component>
@@ -181,13 +182,19 @@
     </Container>
     <Component class="javax.swing.JButton" name="btnPrint">
       <Properties>
-        <Property name="text" type="java.lang.String" value="&#x6253;&#x5370;&#x62a5;&#x8868;"/>
+        <Property name="text" type="java.lang.String" value="&#x5bfc;&#x51fa;Excel"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPrintActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="btnExit">
       <Properties>
         <Property name="text" type="java.lang.String" value="&#x9000;&#x51fa;"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnExitActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

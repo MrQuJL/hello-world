@@ -39,12 +39,9 @@
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
                   <Component id="jLabel4" min="-2" pref="117" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                      <Component id="txtUserName" max="32767" attributes="0"/>
-                      <Component id="txtPwd" pref="132" max="32767" attributes="0"/>
-                  </Group>
+                  <Component id="txtUserName" pref="132" max="32767" attributes="0"/>
                   <Group type="103" alignment="0" groupAlignment="1" attributes="0">
                       <Component id="btnCancle" min="-2" max="-2" attributes="0"/>
                       <Group type="102" attributes="0">
@@ -53,6 +50,7 @@
                           <Component id="rbtnUser" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
+                  <Component id="txtPwd" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace pref="89" max="32767" attributes="0"/>
           </Group>
@@ -107,8 +105,6 @@
     </Component>
     <Component class="javax.swing.JTextField" name="txtUserName">
     </Component>
-    <Component class="javax.swing.JTextField" name="txtPwd">
-    </Component>
     <Component class="javax.swing.JRadioButton" name="rbtnAdmin">
       <Properties>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
@@ -146,6 +142,8 @@
         </Property>
         <Property name="text" type="java.lang.String" value="&#x767b;&#x5f55;&#x9875;&#x9762;"/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JPasswordField" name="txtPwd">
     </Component>
   </SubComponents>
 </Form>
